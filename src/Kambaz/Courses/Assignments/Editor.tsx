@@ -1,6 +1,10 @@
 import { Form, Button, Row, Col, Container } from 'react-bootstrap';
+import { useParams } from 'react-router';
+import { assignments } from '../../Database';
 
 export default function AssignmentEditor() {
+    const { aid } = useParams();
+    const assignment = assignments.find((assignment) => assignment._id === aid);
     return (
       <Container className="mt-4">
         <div id="wd-assignments-editor">
@@ -10,7 +14,7 @@ export default function AssignmentEditor() {
               <Form.Control 
                 id="wd-name" 
                 type="text" 
-                defaultValue="A1 - ENV + HTML" 
+                defaultValue={assignment?.title} 
               />
             </Form.Group>
 
@@ -20,7 +24,7 @@ export default function AssignmentEditor() {
                 id="wd-description" 
                 as="textarea" 
                 rows={3}
-                defaultValue="The assignment is available online. Submit a link to the landing page of your website."
+                defaultValue={assignment?.description}
               />
             </Form.Group>
 
@@ -31,7 +35,7 @@ export default function AssignmentEditor() {
                   <Form.Control 
                     id="wd-points" 
                     type="number" 
-                    defaultValue={100} 
+                    defaultValue={assignment?.points} 
                   />
                 </Form.Group>
               </Col>
@@ -126,7 +130,7 @@ export default function AssignmentEditor() {
                   <Form.Control 
                     id="wd-assign-to" 
                     type="text" 
-                    defaultValue="All Students" 
+                    defaultValue={assignment?.assign_to} 
                   />
                 </Form.Group>
               </Col>
@@ -139,7 +143,7 @@ export default function AssignmentEditor() {
                   <Form.Control 
                     type="date" 
                     id="wd-due-date" 
-                    defaultValue="2025-01-01" 
+                    defaultValue={assignment?.dueDate} 
                   />
                 </Form.Group>
               </Col>
@@ -157,7 +161,7 @@ export default function AssignmentEditor() {
                       <Form.Control 
                         type="date" 
                         id="wd-available-from" 
-                        defaultValue="2025-01-01" 
+                        defaultValue={assignment?.availableDate} 
                       />
                     </Form.Group>
                   </Col>
@@ -167,7 +171,7 @@ export default function AssignmentEditor() {
                       <Form.Control 
                         type="date" 
                         id="wd-available-until" 
-                        defaultValue="2025-01-01" 
+                        defaultValue={assignment?.availableUntil} 
                       />
                     </Form.Group>
                   </Col>
