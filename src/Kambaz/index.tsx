@@ -5,7 +5,28 @@ import Dashboard from "./Dashboard";
 import KambazNavigation from "./Navigation";
 import Courses from "./Courses";
 import "./style.css";
+import * as db from "./Database";
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import ProtectedRoute from "./Account/ProtectedRoute";
+import { useSelector } from "react-redux";
+import { addCourse, deleteCourse, updateCourse } from "./Courses/reducer";
+import { useDispatch } from "react-redux";
+
 export default function Kambaz() {
+  const dispatch = useDispatch();
+  const { courses } = useSelector((state: any) => state.coursesReducer);
+  console.log(courses);
+  const [course, setCourse] = useState<any>({
+    _id: "0",
+    name: "New Course",
+    number: "New Number",
+    startDate: "2023-09-10",
+    endDate: "2023-12-15",
+    image: "/images/reactjs.jpg",
+    description: "New Description",
+  });
+
   return (
     <div id="wd-kambaz">
       <KambazNavigation />
@@ -13,8 +34,8 @@ export default function Kambaz() {
         <Routes>
           <Route path="/" element={<Navigate to="Account" />} />
           <Route path="/Account/*" element={<Account />} />
-          <Route path="/Dashboard" element={<Dashboard />} />
-          <Route path="/Courses/:cid/*" element={<Courses />} />
+          <Route path="/Dashboard" element={<ProtectedRoute><Dashboard courses={courses} course={course} setCourse={setCourse} addNewCourse={() => dispatch(addCourse(course))} deleteCourse={(id) => dispatch(deleteCourse(id))} updateCourse={() => dispatch(updateCourse(course))} /></ProtectedRoute>} />
+          <Route path="/Courses/:cid/*" element={<ProtectedRoute><Courses courses={courses} /></ProtectedRoute>} />
           <Route path="/Calendar" element={<h1>Calendar</h1>} />
           <Route path="/Inbox" element={<h1>Inbox</h1>} />
         </Routes>

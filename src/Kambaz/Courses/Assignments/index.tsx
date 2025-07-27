@@ -1,12 +1,17 @@
 import { ListGroup, Button, InputGroup, Form } from "react-bootstrap";
 import { BsGripVertical } from "react-icons/bs";
-import { FaPlus, FaSearch } from "react-icons/fa";
+import { FaPlus, FaSearch, FaTrash } from "react-icons/fa";
 import { IoEllipsisVertical } from "react-icons/io5";
 import GreenCheckmark from "../Modules/GreenCheckmark";
-import { assignments } from "../../Database";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { useSelector } from "react-redux";
+import { deleteAssignment } from "./reducer";
+import { useDispatch } from "react-redux";
 export default function Assignments() {
   const { cid } = useParams();
+  const dispatch = useDispatch();
+  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+  const navigate = useNavigate();
     return (
       <div id="wd-assignments">
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -26,7 +31,7 @@ export default function Assignments() {
               <FaPlus className="me-2" />
               Group
             </Button>
-            <Button variant="secondary" size="lg" id="wd-add-assignment">
+            <Button variant="secondary" size="lg" id="wd-add-assignment" onClick={() => navigate(`/Kambaz/Courses/${cid}/Assignments/Editor`)}>
               <FaPlus className="me-2" />
               Assignment
             </Button>
@@ -49,7 +54,7 @@ export default function Assignments() {
               </div>
             </div>
             <ListGroup className="wd-lessons rounded-0">
-              {assignments.filter((assignment) => assignment.course === cid).map((assignment) => (
+              {assignments.filter((assignment: any) => assignment.course === cid).map((assignment: any) => (
                 <ListGroup.Item key={assignment._id} className="wd-assignment-list-item p-3 ps-1 border-left-green">
                   <div className="d-flex justify-content-between align-items-start">
                     <BsGripVertical className="me-2 fs-3 text-muted" />
@@ -62,6 +67,7 @@ export default function Assignments() {
                       </div>
                     </div>
                     <GreenCheckmark />
+                    <FaTrash className="text-danger me-2 mb-1" onClick={() => dispatch(deleteAssignment(assignment._id))}/>
                     <IoEllipsisVertical className="fs-4" />
                   </div>
                 </ListGroup.Item>
