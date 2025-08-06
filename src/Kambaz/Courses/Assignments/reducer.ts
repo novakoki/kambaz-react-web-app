@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { assignments } from "../../Database";
 import { v4 as uuidv4 } from "uuid";
 type Assignment = {
     _id: string;
@@ -15,12 +14,15 @@ type Assignment = {
 }
 
 const initialState = {
-  assignments: assignments as Assignment[],
+  assignments:  [] as Assignment[],
 };
 const assignmentsSlice = createSlice({
   name: "assignments",
   initialState,
   reducers: {
+    setAssignments: (state, { payload: assignments }: { payload: Assignment[] }) => {
+      state.assignments = assignments;
+    },
     addAssignment: (state, { payload: assignment }: { payload: Assignment }) => {
       const newAssignment: Assignment = {
         _id: uuidv4(),
@@ -52,5 +54,5 @@ const assignmentsSlice = createSlice({
     },
   },
 });
-export const { addAssignment, deleteAssignment, updateAssignment, editAssignment } = assignmentsSlice.actions;
+export const { setAssignments, addAssignment, deleteAssignment, updateAssignment, editAssignment } = assignmentsSlice.actions;
 export default assignmentsSlice.reducer;

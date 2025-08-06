@@ -5,13 +5,30 @@ import { IoEllipsisVertical } from "react-icons/io5";
 import GreenCheckmark from "../Modules/GreenCheckmark";
 import { useNavigate, useParams } from "react-router";
 import { useSelector } from "react-redux";
-import { deleteAssignment } from "./reducer";
+import { deleteAssignment, setAssignments } from "./reducer";
 import { useDispatch } from "react-redux";
+import * as assignmentsClient from "./client";
+import { useEffect } from "react";
 export default function Assignments() {
   const { cid } = useParams();
   const dispatch = useDispatch();
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
   const navigate = useNavigate();
+
+  const fetchAssignments = async () => {
+    const assignments = await assignmentsClient.fetchAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(assignments));
+  };
+
+  const removeAssignment = async (assignmentId: string) => {
+    await assignmentsClient.deleteAssignment(assignmentId);
+    dispatch(deleteAssignment(assignmentId));
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
+
     return (
       <div id="wd-assignments">
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -54,7 +71,7 @@ export default function Assignments() {
               </div>
             </div>
             <ListGroup className="wd-lessons rounded-0">
-              {assignments.filter((assignment: any) => assignment.course === cid).map((assignment: any) => (
+              {assignments.map((assignment: any) => (
                 <ListGroup.Item key={assignment._id} className="wd-assignment-list-item p-3 ps-1 border-left-green">
                   <div className="d-flex justify-content-between align-items-start">
                     <BsGripVertical className="me-2 fs-3 text-muted" />
@@ -67,7 +84,7 @@ export default function Assignments() {
                       </div>
                     </div>
                     <GreenCheckmark />
-                    <FaTrash className="text-danger me-2 mb-1" onClick={() => dispatch(deleteAssignment(assignment._id))}/>
+                    <FaTrash className="text-danger me-2 mb-1" onClick={() => removeAssignment(assignment._id)}/>
                     <IoEllipsisVertical className="fs-4" />
                   </div>
                 </ListGroup.Item>

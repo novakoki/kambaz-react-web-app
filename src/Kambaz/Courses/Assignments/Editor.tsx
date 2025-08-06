@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { addAssignment, updateAssignment } from './reducer';
 import { useState } from 'react';
+import * as assignmentsClient from './client';
 
 export default function AssignmentEditor() {
     const navigate = useNavigate();
@@ -19,11 +20,13 @@ export default function AssignmentEditor() {
     const [assignmentDueDate, setAssignmentDueDate] = useState(assignment?.dueDate);
     const [assignmentAvailableDate, setAssignmentAvailableDate] = useState(assignment?.availableDate);
     const [assignmentAvailableUntil, setAssignmentAvailableUntil] = useState(assignment?.availableUntil);
-    const handleSave = () => {
+    const handleSave = async () => {
       if (assignment) {
-        dispatch(updateAssignment({ ...assignment, title: assignmentName, description: assignmentDescription, points: assignmentPoints, assign_to: assignmentAssignTo, dueDate: assignmentDueDate, availableDate: assignmentAvailableDate, availableUntil: assignmentAvailableUntil }));
+        const updatedAssignment = await assignmentsClient.updateAssignment(assignment._id, { ...assignment, title: assignmentName, description: assignmentDescription, points: assignmentPoints, assign_to: assignmentAssignTo, dueDate: assignmentDueDate, availableDate: assignmentAvailableDate, availableUntil: assignmentAvailableUntil });
+        dispatch(updateAssignment(updatedAssignment));
       } else {
-        dispatch(addAssignment({...assignment , course: cid as string, modules: [], title: assignmentName, description: assignmentDescription, points: assignmentPoints, assign_to: assignmentAssignTo, dueDate: assignmentDueDate, availableDate: assignmentAvailableDate, availableUntil: assignmentAvailableUntil }));
+        const newAssignment = await assignmentsClient.createAssignment(cid as string, { course: cid as string, modules: [], title: assignmentName, description: assignmentDescription, points: assignmentPoints, assign_to: assignmentAssignTo, dueDate: assignmentDueDate, availableDate: assignmentAvailableDate, availableUntil: assignmentAvailableUntil });
+        dispatch(addAssignment(newAssignment));
       }
       navigate(`/Kambaz/Courses/${cid}/Assignments`);
     };
