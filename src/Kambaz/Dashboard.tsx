@@ -1,19 +1,16 @@
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Row, Col, Card, Button, FormControl } from "react-bootstrap";
-import { enrollInCourse, unenrollFromCourse, setShowAllCourses, setEnrollments } from "./Enrollments/reducer";
-import * as userClient from "./Account/client";
-import * as enrollmentsClient from "./Enrollments/client";
 import { useEffect } from "react";
-export default function Dashboard({ myCourses, allCourses, course, setCourse, addNewCourse,
-  deleteCourse, updateCourse, refreshCourses }: {
-  myCourses: any[]; allCourses: any[]; course: any; setCourse: (course: any) => void;
+import { setEnrollments } from "./Enrollments/reducer";
+import * as enrollmentsClient from "./Enrollments/client";
+export default function Dashboard({ courses, course, setCourse, addNewCourse,
+  deleteCourse, updateCourse, enrolling, setEnrolling, updateEnrollment }: {
+  courses: any[]; course: any; setCourse: (course: any) => void;
   addNewCourse: () => void; deleteCourse: (course: any) => void;
-  updateCourse: () => void; refreshCourses: () => void; }) {
-    const dispatch = useDispatch();
+  updateCourse: () => void; enrolling: boolean; setEnrolling: (enrolling: boolean) => void; updateEnrollment: (courseId: string, enrolled: boolean) => void; }) {
     const { currentUser } = useSelector((state: any) => state.accountReducer);
-    const { enrollments, showAllCourses } = useSelector((state: any) => state.enrollmentsReducer);
-
+    const dispatch = useDispatch();
     const fetchEnrollments = async () => {
       const enrollments = await enrollmentsClient.getAllEnrollments();
       dispatch(setEnrollments(enrollments));
@@ -23,43 +20,13 @@ export default function Dashboard({ myCourses, allCourses, course, setCourse, ad
       fetchEnrollments();
     }, []);
 
-    const handleEnroll = async (courseId: string) => {
-      await userClient.enrollInCourse(courseId);
-      dispatch(enrollInCourse({ userId: currentUser._id, courseId }));
-      refreshCourses();
-    };
-
-    const handleUnenroll = async (courseId: string) => {
-      await userClient.unenrollFromCourse(courseId);
-      dispatch(unenrollFromCourse({ userId: currentUser._id, courseId }));
-      refreshCourses();
-    };
-
-    const isEnrolled = (courseId: string) => {
-      return enrollments.some(
-        (enrollment: any) => 
-          enrollment.user === currentUser._id && enrollment.course === courseId
-      );
-    };
-
-    const getCoursesToDisplay = () => {
-      if (showAllCourses) {
-        return allCourses;
-      }
-      return myCourses;
-    };
-
   return (
     <div id="wd-dashboard">
-      <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
+      <h1 id="wd-dashboard-title">Dashboard<button onClick={() => setEnrolling(!enrolling)} className="float-end btn btn-primary" >
+          {enrolling ? "My Courses" : "All Courses"}
+        </button></h1> <hr />
       <h5>
         {currentUser?.role === "FACULTY" ? "New Course" : "Course Management"}
-        <button
-          className="btn btn-info float-end"
-          onClick={() => dispatch(setShowAllCourses(!showAllCourses))}
-        >
-          {showAllCourses ? "Show Enrolled" : "Enrollments"}
-        </button>
         {currentUser?.role === "FACULTY" && (
           <>
             <button
@@ -92,12 +59,12 @@ export default function Dashboard({ myCourses, allCourses, course, setCourse, ad
         </>
       )}
       <h2 id="wd-dashboard-published">
-        {showAllCourses ? `All Courses (${allCourses.length})` : `Published Courses (${getCoursesToDisplay().length})`}
+        {enrolling ? `All Courses (${courses.length})` : `Enrolled Courses (${courses.length})`}
       </h2>{" "}
       <hr />
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
-          {getCoursesToDisplay().map((course, index) => (
+          {courses.map((course, index) => (
             <Col className="wd-dashboard-course" style={{ width: "300px" }}>
               <Card>
                 <Link
@@ -122,27 +89,14 @@ export default function Dashboard({ myCourses, allCourses, course, setCourse, ad
                     </Card.Text>
                     <Button variant="primary"> Go </Button>
                     
-                    {isEnrolled(course._id) ? (
-                      <button
-                        onClick={(event) => {
-                          event.preventDefault();
-                          handleUnenroll(course._id);
-                        }}
-                        className="btn btn-danger float-end ms-1"
-                      >
-                        Unenroll
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(event) => {
-                          event.preventDefault();
-                          handleEnroll(course._id);
-                        }}
-                        className="btn btn-success float-end ms-1"
-                      >
-                        Enroll
-                      </button>
-                    )}
+                    {enrolling && (
+              <button className={`btn ${ course.enrolled ? "btn-danger" : "btn-success" } float-end`} onClick={(event) => {
+                event.preventDefault();
+                updateEnrollment(course._id, !course.enrolled);
+              }}>
+                {course.enrolled ? "Unenroll" : "Enroll"}
+              </button>
+            )}
                     {currentUser?.role === "FACULTY" && (
                       <>
                         <button

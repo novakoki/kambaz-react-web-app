@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
 type Assignment = {
     _id: string;
     title: string;
@@ -24,19 +23,7 @@ const assignmentsSlice = createSlice({
       state.assignments = assignments;
     },
     addAssignment: (state, { payload: assignment }: { payload: Assignment }) => {
-      const newAssignment: Assignment = {
-        _id: uuidv4(),
-        title: assignment.title,
-        course: assignment.course,
-        modules: assignment.modules,
-        dueDate: assignment.dueDate,
-        description: assignment.description,
-        points: assignment.points,
-        assign_to: assignment.assign_to,
-        availableDate: assignment.availableDate,
-        availableUntil: assignment.availableUntil,
-      };
-      state.assignments = [...state.assignments, newAssignment] as any;
+      state.assignments = [...state.assignments, assignment] as any;
     },
     deleteAssignment: (state, { payload: assignmentId }) => {
       state.assignments = state.assignments.filter(
